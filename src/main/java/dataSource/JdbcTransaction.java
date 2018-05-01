@@ -32,6 +32,7 @@ public class JdbcTransaction implements Transaction {
     }
 
     public void rollback() throws SQLException {
+        boolean autoCommit = connection.getAutoCommit();
         if (connection != null && !connection.getAutoCommit()) {
             connection.rollback();
         }

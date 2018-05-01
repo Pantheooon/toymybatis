@@ -7,6 +7,7 @@ import mapping.MappedStatement;
 import mapping.ParamMap;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -18,15 +19,11 @@ public class DefaultSqlSession implements SqlSession {
     private Excutor excutor;
     private boolean autoCommit = true;
 
-    public DefaultSqlSession(Configuration configuration) {
-        this.configuration = configuration;
-        excutor = new BaseExcutor(configuration, configuration.getTransactionFactory().newTransaction(autoCommit), autoCommit);
-    }
 
     public DefaultSqlSession(Configuration configuration, Boolean autoCommit) {
         this.configuration = configuration;
         this.autoCommit = autoCommit;
-        excutor = new BaseExcutor(configuration, configuration.getTransactionFactory().newTransaction(true), autoCommit);
+        excutor = new BaseExcutor(configuration, configuration.getTransactionFactory().newTransaction(autoCommit), autoCommit);
     }
 
 
@@ -53,7 +50,11 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public void close() {
-
+        try {
+            excutor.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public Configuration getConfiguration() {
@@ -71,13 +72,18 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public void rollback(boolean roolback) {
-
+    public void rollback() {
+        excutor.rollback();
     }
 
     @Override
     public MappedStatement getMappedStatement(Method method) {
         String key = method.getDeclaringClass().getName() + "." + method.getName();
         return configuration.getMappedStatement(key);
+    }
+
+    @Override
+    public void commit() {
+        excutor.commit();
     }
 }

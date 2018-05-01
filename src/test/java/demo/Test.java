@@ -23,7 +23,7 @@ public class Test {
         properties.put("password", "root");
         properties.put("url", "jdbc:mysql://localhost:3306/pmj_test?autoReconnect=true&useSSL=false");
         properties.put("driver", "com.mysql.jdbc.Driver");
-        sqlSession = new SqlSessionFactory(properties).openSqlSession();
+        sqlSession = new SqlSessionFactory(properties).openSqlSession(false);
     }
 
 
@@ -51,6 +51,7 @@ public class Test {
         IStudentDao mapper = sqlSession.getMapper(IStudentDao.class);
         mapper.updateByName("pmj");
         Student student = mapper.findById(17L);
+        Student byId = mapper.findById(20L);
         Assert.assertEquals(student.getName(), "pmj");
     }
 
@@ -62,5 +63,17 @@ public class Test {
         student.setDate(new Date());
         mapper.insert(student);
         System.out.println(student);
+    }
+
+    //does transaction works?
+    @org.junit.Test
+    public void test5() {
+        IStudentDao mapper = sqlSession.getMapper(IStudentDao.class);
+        Student student = new Student();
+        student.setName("pmj12");
+        student.setDate(new Date());
+        mapper.insert(student);
+        sqlSession.commit();
+        sqlSession.close();
     }
 }

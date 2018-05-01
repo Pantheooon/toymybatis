@@ -34,7 +34,9 @@ public interface SqlSession extends Closeable {
 
     void autoCommit(boolean autocommit);
 
-    void rollback(boolean roolback);
+    void rollback();
 
     MappedStatement getMappedStatement(Method method);
+
+    void commit();
 }

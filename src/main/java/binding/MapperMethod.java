@@ -35,26 +35,33 @@ public class MapperMethod {
         String sql = resolveParamAndSql(map, mappedStatement, objects);
         String statement = method.getDeclaringClass().getName() + "." + method.getName();
         Map<Integer, ParamMap> parameters = getParameters(objects, map);
-        switch (mappedStatement.getSqlCommandType()) {
-            case SELECT:
-                if (mappedStatement.getReturnType().isReturnMany()) {
-                    return sqlSession.select(statement, parameters, sql);
-                } else {
-                    //返回一个
-                    return sqlSession.selectOne(statement, parameters, sql);
-                }
-            case INSERT:
-                if (objects.length != 1 && mappedStatement.getGeratekey()) {
-                    throw new Exception("the method " + mappedStatement.getRelatedMethod().getName() + "has multi param and it need generate keys");
-                }
-                if (objects == null) {
-                    sqlSession.insert(statement, parameters, sql, null);
-                } else {
-                    sqlSession.insert(statement, parameters, sql, objects[0]);
-                }
-            case DELETE:
-            case UPDATE:
-                sqlSession.updateOrDelete(parameters, sql);
+        try {
+            switch (mappedStatement.getSqlCommandType()) {
+                case SELECT:
+                    if (mappedStatement.getReturnType().isReturnMany()) {
+                        return sqlSession.select(statement, parameters, sql);
+                    } else {
+                        //返回一个
+                        return sqlSession.selectOne(statement, parameters, sql);
+                    }
+                case INSERT:
+                    if (objects.length != 1 && mappedStatement.getGeratekey()) {
+                        throw new Exception("the method " + mappedStatement.getRelatedMethod().getName() + "has multi param and it need generate keys");
+                    }
+                    if (objects == null) {
+                        sqlSession.insert(statement, parameters, sql, null);
+                    } else {
+                        sqlSession.insert(statement, parameters, sql, objects[0]);
+                    }
+                    return null;
+                case DELETE:
+                case UPDATE:
+                    sqlSession.updateOrDelete(parameters, sql);
+                    return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -101,7 +108,7 @@ public class MapperMethod {
                 throw new Exception("the annotations num is " + parameterAnnotations.length + "but the param num is" + objects.length);
             }
             //此处存在param注解数量和参数数量不一致的情况
-            Map<String,Object> context = new HashMap<String, Object>();
+            Map<String, Object> context = new HashMap<String, Object>();
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 for (int j = 0; j < parameterAnnotations[i].length; j++) {
                     Annotation annotation = parameterAnnotations[i][j];
@@ -125,4 +132,5 @@ public class MapperMethod {
 
         return paramMaps;
     }
+
 }

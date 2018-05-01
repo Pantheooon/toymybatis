@@ -25,6 +25,7 @@ public class BaseExcutor implements Excutor {
     private Transaction transaction;
     private Boolean closed;
     private Boolean autoCommit;
+    private Connection connection;
 
     public BaseExcutor(Configuration configuration, Transaction transaction, Boolean autoCommit) {
         this.configuration = configuration;
@@ -37,8 +38,7 @@ public class BaseExcutor implements Excutor {
     public <T> List<T> select(MappedStatement mappedStatement, Map<Integer, ParamMap> paramMapMap, String sql) {
         ResultSet resultSet = null;
         try {
-            Connection connection = getConnection();
-            connection.setAutoCommit(autoCommit);
+            connection = getConnection();
             PreparedStatement ps = connection.prepareStatement(sql);
             if (paramMapMap != null) {
                 for (int i = 0; i < paramMapMap.size(); i++) {
@@ -64,8 +64,7 @@ public class BaseExcutor implements Excutor {
     @Override
     public void update(Map<Integer, ParamMap> paramMapMap, String sql) {
         try {
-            Connection connection = getConnection();
-            connection.setAutoCommit(autoCommit);
+            connection = getConnection();
             PreparedStatement ps = connection.prepareStatement(sql);
             if (paramMapMap != null) {
                 for (int i = 0; i < paramMapMap.size(); i++) {
@@ -83,8 +82,7 @@ public class BaseExcutor implements Excutor {
     @Override
     public void insert(MappedStatement mappedStatement, Map<Integer, ParamMap> parameters, String sql, Object param) {
         try {
-            Connection connection = getConnection();
-            connection.setAutoCommit(autoCommit);
+            connection = getConnection();
             PreparedStatement ps = connection.prepareStatement(sql);
             if (parameters != null) {
                 for (int i = 0; i < parameters.size(); i++) {
@@ -107,9 +105,38 @@ public class BaseExcutor implements Excutor {
         }
     }
 
+    @Override
+    public void close() throws SQLException {
+        if (transaction != null) {
+            transaction.close();
+        }
+    }
+
+    @Override
+    public void rollback() {
+        try {
+            transaction.rollback();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void commit() {
+        if (transaction != null){
+            try {
+                transaction.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     protected Connection getConnection() throws SQLException {
-        Connection connection = transaction.getConnection();
+        if (connection == null) {
+            connection = transaction.getConnection();
+        }
         Boolean auto = connection.getAutoCommit();
         if (!auto.equals(autoCommit)) {
             connection.setAutoCommit(auto);

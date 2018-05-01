@@ -17,4 +17,10 @@ public interface Excutor {
     void update(Map<Integer, ParamMap> paramMapMap, String sql);
 
     void insert(MappedStatement mappedStatement, Map<Integer, ParamMap> parameters, String sql,Object param);
+
+    void close() throws SQLException;
+
+    void rollback();
+
+    void commit();
 }
