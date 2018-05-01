@@ -46,7 +46,8 @@ public abstract class ResultSetHandler {
                 typeHandler = new FloatHandler();
             } else if (type.isAssignableFrom(String.class)) {
                 typeHandler = new StringHandler();
-
+            } else if (type.isAssignableFrom(Date.class)) {
+                typeHandler = new DateTypeHandler();
             } else {
                 typeHandler = new ObjectHandler();
             }

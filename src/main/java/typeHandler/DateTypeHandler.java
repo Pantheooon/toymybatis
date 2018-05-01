@@ -15,7 +15,7 @@ public class DateTypeHandler extends TypeHandler {
 
     @Override
     public Date handleResult(ResultSet resultSet) throws SQLException {
-
-        return resultSet.getTime(getName());
+        //似乎有点问题
+        return new Date(resultSet.getTimestamp(getName()).getTime());
     }
 }

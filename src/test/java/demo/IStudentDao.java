@@ -22,9 +22,13 @@ public interface IStudentDao {
 
     @Update("updateById")
     void updateById(Integer id);
+
     @Update("updateByName")
     void updateByName(String pmjj);
 
     @Insert("insert")
     void insert(Student student);
+
+    @Select("findByMultiParam")
+    List<Student> findByMultiParam(@Param("student1") Student student, @Param("student2") Student student2);
 }

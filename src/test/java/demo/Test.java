@@ -23,7 +23,7 @@ public class Test {
         properties.put("password", "root");
         properties.put("url", "jdbc:mysql://localhost:3306/pmj_test?autoReconnect=true&useSSL=false");
         properties.put("driver", "com.mysql.jdbc.Driver");
-        sqlSession = new SqlSessionFactory(properties).openSqlSession(false);
+        sqlSession = new SqlSessionFactory(properties).openSqlSession();
     }
 
 
@@ -51,7 +51,6 @@ public class Test {
         IStudentDao mapper = sqlSession.getMapper(IStudentDao.class);
         mapper.updateByName("pmj");
         Student student = mapper.findById(17L);
-        Student byId = mapper.findById(20L);
         Assert.assertEquals(student.getName(), "pmj");
     }
 
@@ -73,6 +72,19 @@ public class Test {
         student.setName("pmj12");
         student.setDate(new Date());
         mapper.insert(student);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+
+
+    @org.junit.Test
+    public void testMultiParam() {
+        IStudentDao mapper = sqlSession.getMapper(IStudentDao.class);
+        Student student = new Student();
+        student.setName("pmj1");
+        Student student1 = new Student();
+        student1.setName("pmj");
+        List<Student> byMultiParam = mapper.findByMultiParam(student, student1);
         sqlSession.commit();
         sqlSession.close();
     }
