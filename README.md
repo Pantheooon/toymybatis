@@ -1,2 +1,2 @@
 # toymybatis
-It is my personl toy for mybatis,it's too poor,lol :>!!
+It is my personl toy for mybatis,lol :>!!
